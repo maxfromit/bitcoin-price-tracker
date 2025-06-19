@@ -1,4 +1,7 @@
-import type { HistoricalPriceItem } from "~~/server/types"
+import type {
+  HistoricalPriceItem,
+  HistoricalPriceResponse,
+} from "~~/server/types"
 
 const baseUrl = "https://data-api.coindesk.com/index/cc/v1/historical/days"
 const params = {
@@ -36,7 +39,7 @@ export async function fetchHistoricalPrices(): Promise<HistoricalPriceItem[]> {
     }
 
     console.log("Response status:", response)
-    const res = await response.json()
+    const res = (await response.json()) as HistoricalPriceResponse
     console.log("data", res.Data) // Log the fetched data
     return res.Data
   } catch (error) {
