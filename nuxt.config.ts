@@ -19,6 +19,10 @@ export default defineNuxtConfig({
     experimental: {
       tasks: true,
     },
+    scheduledTasks: {
+      // Run `cms:update` task every minute
+      "59 23 * * *": ["daily_update"],
+    },
   },
   compatibilityDate: "2024-11-27",
 })
