@@ -1,5 +1,6 @@
 import { pgTable, integer, text, decimal, index } from "drizzle-orm/pg-core"
 import { createId } from "@paralleldrive/cuid2"
+import { InferSelectModel } from "drizzle-orm"
 
 export const bitcoinPrice = pgTable(
   "bitcoin_price",
@@ -24,3 +25,5 @@ export const bitcoinPrice = pgTable(
     index("bitcoin_price_evaluated_at_idx").on(table.evaluatedAt),
   ]
 )
+
+export type BitcoinPrice = InferSelectModel<typeof bitcoinPrice>
