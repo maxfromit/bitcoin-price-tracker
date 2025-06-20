@@ -800,9 +800,9 @@
     "@iconify/types" "*"
 
 "@iconify/collections@^1.0.548", "@iconify/collections@^1.0.560":
-  version "1.0.560"
-  resolved "https://registry.yarnpkg.com/@iconify/collections/-/collections-1.0.560.tgz#f6e03c919e45350056b74ed90d891fe0093a3d20"
-  integrity sha512-sXm0Io67deUIqWmaSGb+JJ4Y9DJvgT/seaQlCOHUuHhs3qcPuLY6WMlfoUSmmXV5yHFhZprRZEs1np2BZ/BCJw==
+  version "1.0.561"
+  resolved "https://registry.yarnpkg.com/@iconify/collections/-/collections-1.0.561.tgz#ba84c7cf7c89864883dc7ecde540e5dd011bbd70"
+  integrity sha512-Bn3YLaXwNwVpVUk6YfxOc1I69r7pAV7GsDtkknXAa0Fk4vlh3YxwQU5J8N8h++tRmw702IVjQm6csyAyFZuADQ==
   dependencies:
     "@iconify/types" "*"
 
@@ -3732,9 +3732,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.5.160:
-  version "1.5.170"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.170.tgz#9f6697de4339e24da8b234e4492a9ecb91f5989c"
-  integrity sha512-GP+M7aeluQo9uAyiTCxgIj/j+PrWhMlY7LFVj8prlsPljd0Fdg9AprlfUi+OCSFWy9Y5/2D/Jrj9HS8Z4rpKWA==
+  version "1.5.171"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.171.tgz#e552b4fd73d4dd941ee4c70ae288a8a39f818726"
+  integrity sha512-scWpzXEJEMrGJa4Y6m/tVotb0WuvNmasv3wWVzUAeCgKU0ToFOhUW6Z+xWnRQANMYGxN4ngJXIThgBJOqzVPCQ==
 
 embla-carousel-auto-height@^8.6.0:
   version "8.6.0"
