@@ -13,6 +13,7 @@ import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
 const { data: prices, pending, error } = await useFetch("/api/bitcoin-prices")
 
 // const periods = ref(["1d", "1w", "1m", "1y", "all"])
+
 const periodInDays = ref(null)
 
 const maxPeriodInDays = computed(() =>
@@ -60,14 +61,11 @@ const pricesToShow = computed(() => {
     ? filterPricesBySelectedRange(prices.value, selectedRange.value)
     : prices.value
 
-  const filteredPricesByPeriod =
-    selectedPeriod.value !== "1d"
-      ? filterPricesBySelectedPeriod(
-          filteredPricesByRange,
-          selectedPeriod.value,
-          periodInDays.value
-        )
-      : filteredPricesByRange
+  const filteredPricesByPeriod = filterPricesBySelectedPeriod(
+    filteredPricesByRange,
+    selectedPeriod.value,
+    periodInDays.value
+  )
 
   return transformPriceDataForGraph(filteredPricesByPeriod)
 })
@@ -148,7 +146,7 @@ const options = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 w-full">
+  <div v-if="!pending" class="flex flex-col gap-4 w-full">
     <div class="flex flex-row gap-4 items-center">
       <PeriodPicker
         v-model:selected-period="selectedPeriod"
@@ -179,5 +177,10 @@ const options = computed(() => {
         :last-date="lastDate.copy()"
       />
     </div>
+  </div>
+
+  <div v-else>
+    <p>Loading Bitcoin prices...</p>
+    <USkeleton class="h-12 w-12 rounded-full" />
   </div>
 </template>
