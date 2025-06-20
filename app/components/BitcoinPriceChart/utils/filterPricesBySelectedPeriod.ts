@@ -20,10 +20,6 @@ export const filterPricesBySelectedPeriod = (
     return index === 0 || index === arrayLength - 1
   }
 
-  if (period === "1d") {
-    return prices
-  }
-
   if (period === "1w") {
     return l.filter(prices, (price, index) => {
       const priceDate = getCalendarDateFromUnixTimestamp(price.evaluatedAt, tz)
@@ -62,4 +58,5 @@ export const filterPricesBySelectedPeriod = (
       )
     })
   }
+  return prices
 }
