@@ -22,9 +22,9 @@ export async function fetchHistoricalPrices(): Promise<HistoricalPriceItem[]> {
     method: "GET",
     headers: { "Content-type": "application/json; charset=UTF-8" },
   }
-  console.log("Fetching historical prices from url.toString():", url.toString())
-  console.log("Fetching historical prices from url:", url)
-  console.log("params:", params)
+  // console.log("Fetching historical prices from url.toString():", url.toString())
+  // console.log("Fetching historical prices from url:", url)
+  // console.log("params:", params)
 
   try {
     const response = await fetch(url.toString(), options)
@@ -38,9 +38,10 @@ export async function fetchHistoricalPrices(): Promise<HistoricalPriceItem[]> {
       }
     }
 
-    console.log("Response status:", response)
+    // console.log("Response status:", response)
     const res = (await response.json()) as HistoricalPriceResponse
-    console.log("data", res.Data) // Log the fetched data
+
+    // console.log("data", data) // Log the fetched data
     return res.Data
   } catch (error) {
     console.error("Error fetching historical prices")
