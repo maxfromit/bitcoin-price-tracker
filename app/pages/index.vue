@@ -1,15 +1,13 @@
-<script setup lang="ts">
-// import { fetchTransformAndInsertBitcoinPrices } from "~~/server/utils/insertBitcoinPrices"
-// import { ref } from "vue"
-
-// const { data, pending, error } = useFetch("/api/getBitcoinPrices")
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <div class="flex flex-col items-center justify-center gap-4 h-screen">
+  <div class="flex flex-col gap-4 h-screen">
     <h1 class="font-bold text-2xl text-(--ui-primary)">Nuxt UI - Starter</h1>
+    <div class="flex flex-col gap-10">
+      <BitcoinPriceChart />
 
-    <FetchHistoricalPricesButton />
+      <FetchHistoricalPricesButton />
+    </div>
 
     <div>
       <h1 class="text-xl font-bold">Bitcoin Prices</h1>
