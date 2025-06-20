@@ -8,7 +8,8 @@ export function transformFetchedDataForBitcoinPrice(
       return [
         {
           closePriceUsd: item.CLOSE.toString(),
-          evaluatedAt: new Date(item.TIMESTAMP * 1000).toISOString(),
+          evaluatedAt: item.TIMESTAMP,
+          //   evaluatedAt: new Date(item.TIMESTAMP * 1000).toISOString(),
         },
       ]
     }
