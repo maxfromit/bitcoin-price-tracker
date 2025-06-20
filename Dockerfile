@@ -25,4 +25,4 @@ COPY --chown=node:node . .
 # this is the end of the user rights
 
 # Ensure the database schema is synchronized before starting the Nuxt app
-CMD ["sh", "-c", "yarn db:generate && yarn dev"]
+CMD ["sh", "-c", "yarn db:generate && yarn db:push && yarn dev"]
