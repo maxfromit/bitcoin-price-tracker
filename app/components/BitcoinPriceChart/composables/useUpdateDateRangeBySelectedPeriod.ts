@@ -23,19 +23,19 @@ export const useUpdateDateRangeBySelectedPeriod = ({
 }) => {
   selectedRange.value.end = today(tz)
 
-  if (predefinedPeriod === "1d") {
+  if (predefinedPeriod === "today") {
     selectedRange.value.start = selectedRange.value.end.copy()
   }
 
-  if (predefinedPeriod === "1w") {
+  if (predefinedPeriod === "this week") {
     selectedRange.value.start = startOfWeek(selectedRange.value.end, "fr-FR")
   }
 
-  if (predefinedPeriod === "1m") {
+  if (predefinedPeriod === "this month") {
     selectedRange.value.start = startOfMonth(selectedRange.value.end)
   }
 
-  if (predefinedPeriod === "1y") {
+  if (predefinedPeriod === "this year") {
     selectedRange.value.start = startOfYear(selectedRange.value.end)
   }
 
