@@ -1,10 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  // runtimeConfig: {
-  //   public: {
-  //     apiBase: process.env.NUXT_PUBLIC_API_BASE,
-  //   },
-  // },
+  app: {
+    head: {
+      title: "Bitcoin Price Tracker",
+    },
+  },
+
   devtools: { enabled: true },
 
   modules: ["@nuxt/ui", "@nuxt/eslint", "@nuxt/icon", "nuxt-highcharts"],
@@ -24,5 +25,6 @@ export default defineNuxtConfig({
       "59 23 * * *": ["daily_update"],
     },
   },
+
   compatibilityDate: "2024-11-27",
 })
