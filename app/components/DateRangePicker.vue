@@ -22,6 +22,7 @@ const minDate = computed(() => {
   return props.firstDate?.copy() ?? undefined
 })
 
+// Keep selectedRange.start <= selectedRange.end by updating the other value if needed and vice versa
 watch(
   () => selectedRange.value?.start,
   (newStart) => {
@@ -55,21 +56,7 @@ function resetSelectedRange() {
   }
 }
 
-const isNotDefaultRange = computed(() => {
-  if (
-    !selectedRange.value ||
-    !selectedRange.value.start ||
-    !selectedRange.value.end
-  ) {
-    return false
-  }
-  return (
-    selectedRange.value.start?.compare(props.firstDate?.copy()) !== 0 ||
-    selectedRange.value.end?.compare(props.lastDate?.copy()) !== 0
-  )
-})
-
-const isChangedDefinedRange = computed(() =>
+const isChangedRange = computed(() =>
   selectedRange.value &&
   selectedRange.value.start &&
   selectedRange.value.end &&
@@ -120,15 +107,13 @@ const isChangedDefinedRange = computed(() =>
       </template>
     </UPopover>
     <UTooltip
-      :text="
-        isChangedDefinedRange ? 'Reset to default range' : 'No changes to reset'
-      "
+      :text="isChangedRange ? 'Reset to default range' : 'No changes to reset'"
     >
       <UButton
         icon="i-lucide-refresh-ccw"
         variant="ghost"
-        :color="isChangedDefinedRange ? 'primary' : 'neutral'"
-        :disabled="!isChangedDefinedRange"
+        :color="isChangedRange ? 'primary' : 'neutral'"
+        :disabled="!isChangedRange"
         @click="resetSelectedRange()"
       />
     </UTooltip>
