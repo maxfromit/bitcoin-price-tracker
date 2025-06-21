@@ -7,7 +7,7 @@ export default defineTask({
   async run() {
     console.log("Running daily update for Bitcoin prices...")
     try {
-      await fetchTransformAndInsertBitcoinPrices()
+      await fetchTransformAndInsertBitcoinPrices("insertLatest")
       return { result: "success" }
     } catch (error) {
       console.error("Error during daily update of Bitcoin prices:", error)
