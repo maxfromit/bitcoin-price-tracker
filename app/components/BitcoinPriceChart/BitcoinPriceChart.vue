@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import type { CalendarDate } from "@internationalized/date"
-import type { DateRange, Period } from "./types"
-import type { Charts } from "highcharts"
+import type { DateRange, PredefinedPeriod } from "./types"
+import type { Chart } from "highcharts"
 import l from "lodash"
-import { startOfWeek } from "@internationalized/date"
-import { filterPricesBySelectedPeriod } from "./utils/filterPricesBySelectedPeriod"
+import { useUpdateDateRangeBySelectedPeriod } from "./composables/useUpdateDateRangeBySelectedPeriod"
 import { filterPricesBySelectedRange } from "./utils/filterPricesBySelectedRange"
 import { getFirstAndLastCalendarDateFromPrices } from "./utils/getFirstAndLastDateFromPrices"
 import { getLabelByPeriod } from "./utils/getLabelByPeriod"
 import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
 
-const {
-  data: bitcoinPrices,
-  status,
-  error,
-} = await useFetch("/api/bitcoin-prices")
+const { data: bitcoinPrices, status } = await useFetch("/api/bitcoin-prices")
 
-const chartRef = ref<Charts | null>(null)
+const chartRef = ref<Chart | null>(null)
 
 watchEffect(() => {
   if (status.value !== "success" && chartRef.value) {
@@ -28,63 +23,9 @@ watchEffect(() => {
   }
 })
 
-// const periods = ref(["1d", "1w", "1m", "1y", "all"])
-
-const periodInDays = ref(null)
-
-const maxPeriodInDays = computed(() =>
-  selectedRange.value?.start && selectedRange.value?.end
-    ? selectedRange.value?.end.compare(selectedRange.value?.start.copy()) + 1
-    : null
-)
-
-const periods = computed(() => {
-  const defaultPeriods = ["1d", "1w", "1m", "1y", "custom"]
-
-  if (!!selectedRange.value?.start && !!selectedRange.value?.end) {
-    if (selectedRange.value.start.year === selectedRange.value.end.year) {
-      l.pull(defaultPeriods, "1y", "all")
-      if (selectedRange.value.start.month === selectedRange.value.end.month) {
-        l.pull(defaultPeriods, "1m")
-      }
-      if (
-        startOfWeek(selectedRange.value.start.copy(), "en-US").compare(
-          startOfWeek(selectedRange.value.end.copy(), "en-US")
-        ) === 0
-      ) {
-        l.pull(defaultPeriods, "1w")
-      }
-    }
-  }
-
-  return defaultPeriods
-})
-
-const selectedPeriod = ref<Period>("1d")
-
+const selectedCustomPeriodInDays = ref<number | null>(null)
+const selectedPredefinedPeriod = ref<PredefinedPeriod>("all")
 const selectedRange = ref<DateRange | null>(null)
-
-const pricesToShow = computed(() => {
-  if (
-    !bitcoinPrices.value ||
-    !Array.isArray(bitcoinPrices.value) ||
-    bitcoinPrices.value.length === 0
-  ) {
-    return []
-  }
-
-  const filteredPricesByRange = selectedRange.value
-    ? filterPricesBySelectedRange(bitcoinPrices.value, selectedRange.value)
-    : bitcoinPrices.value
-
-  const filteredPricesByPeriod = filterPricesBySelectedPeriod(
-    filteredPricesByRange,
-    selectedPeriod.value,
-    periodInDays.value
-  )
-
-  return transformPriceDataForGraph(filteredPricesByPeriod)
-})
 
 const firstDate = ref<CalendarDate | null>(null)
 const lastDate = ref<CalendarDate | null>(null)
@@ -104,6 +45,31 @@ watch(
   },
   { immediate: true }
 )
+
+const pricesToShow = computed(() => {
+  if (
+    !bitcoinPrices.value ||
+    !Array.isArray(bitcoinPrices.value) ||
+    bitcoinPrices.value.length === 0
+  ) {
+    return []
+  }
+
+  const filteredPricesByRange = selectedRange.value
+    ? filterPricesBySelectedRange(bitcoinPrices.value, selectedRange.value)
+    : bitcoinPrices.value
+
+  return transformPriceDataForGraph(filteredPricesByRange)
+})
+
+watchEffect(() => {
+  useUpdateDateRangeBySelectedPeriod({
+    selectedRange,
+    period: selectedPredefinedPeriod.value,
+    periodInDays: selectedCustomPeriodInDays.value,
+    firstDate: firstDate.value?.copy(),
+  })
+})
 
 const isTheSameYear = computed(() => {
   if (!firstDate.value || !lastDate.value) {
@@ -136,7 +102,10 @@ const options = computed(() => {
       type: "datetime",
       title: { text: "Date" },
       labels: {
-        format: getLabelByPeriod(selectedPeriod.value, isTheSameYear.value),
+        format: getLabelByPeriod(
+          selectedPredefinedPeriod.value,
+          isTheSameYear.value
+        ),
       },
     },
     yAxis: {
@@ -174,27 +143,9 @@ const options = computed(() => {
     >
       <div class="flex flex-row gap-4 items-center">
         <PeriodPicker
-          v-model:selected-period="selectedPeriod"
-          v-model:periods="periods"
-        >
-          <template #input>
-            <UInputNumber
-              v-if="selectedPeriod === 'custom'"
-              v-model="periodInDays"
-              :min="1"
-              :max="maxPeriodInDays ?? undefined"
-              :placeholder="`days ${
-                maxPeriodInDays ? `(max: ${maxPeriodInDays})` : ''
-              }`"
-              color="neutral"
-              variant="ghost"
-              orientation="vertical"
-            />
-          </template>
-        </PeriodPicker>
-        <!-- <UInputNumber
-
-        /> -->
+          v-model:selected-predefined-period="selectedPredefinedPeriod"
+          v-model:selected-custom-period-in-days="selectedCustomPeriodInDays"
+        />
       </div>
 
       <div class="flex flex-row gap-4 justify-between">
