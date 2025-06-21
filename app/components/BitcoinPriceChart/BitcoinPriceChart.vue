@@ -65,8 +65,8 @@ const pricesToShow = computed(() => {
 watchEffect(() => {
   useUpdateDateRangeBySelectedPeriod({
     selectedRange,
-    period: selectedPredefinedPeriod.value,
-    periodInDays: selectedCustomPeriodInDays.value,
+    predefinedPeriod: selectedPredefinedPeriod.value,
+    customPeriodInDays: selectedCustomPeriodInDays.value,
     firstDate: firstDate.value?.copy(),
   })
 })
@@ -139,9 +139,9 @@ const options = computed(() => {
   <div class="flex flex-col flex-1 gap-2">
     <div
       v-if="status === 'success'"
-      class="flex-1 flex flex-col gap-4 items-center"
+      class="flex-1 flex flex-col gap-6 md:gap-4 items-center"
     >
-      <div class="flex flex-row gap-4 items-center">
+      <div class="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
         <PeriodPicker
           v-model:selected-predefined-period="selectedPredefinedPeriod"
           v-model:selected-custom-period-in-days="selectedCustomPeriodInDays"
