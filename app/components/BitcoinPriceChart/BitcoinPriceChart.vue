@@ -2,6 +2,7 @@
 import { ref } from "vue"
 import type { CalendarDate } from "@internationalized/date"
 import type { DateRange, Period } from "./types"
+import type { Charts } from "highcharts"
 import l from "lodash"
 import { startOfWeek } from "@internationalized/date"
 import { filterPricesBySelectedPeriod } from "./utils/filterPricesBySelectedPeriod"
@@ -10,7 +11,22 @@ import { getFirstAndLastCalendarDateFromPrices } from "./utils/getFirstAndLastDa
 import { getLabelByPeriod } from "./utils/getLabelByPeriod"
 import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
 
-const { data: prices, pending, error } = await useFetch("/api/bitcoin-prices")
+const {
+  data: bitcoinPrices,
+  status,
+  error,
+} = await useFetch("/api/bitcoin-prices")
+
+const chartRef = ref<Charts | null>(null)
+
+watchEffect(() => {
+  if (status.value !== "success" && chartRef.value) {
+    chartRef.value.showLoading()
+  }
+  if (status.value === "success" && chartRef.value) {
+    chartRef.value.hideLoading()
+  }
+})
 
 // const periods = ref(["1d", "1w", "1m", "1y", "all"])
 
@@ -18,12 +34,12 @@ const periodInDays = ref(null)
 
 const maxPeriodInDays = computed(() =>
   selectedRange.value?.start && selectedRange.value?.end
-    ? selectedRange.value?.end.compare(selectedRange.value?.start.copy())
+    ? selectedRange.value?.end.compare(selectedRange.value?.start.copy()) + 1
     : null
 )
 
 const periods = computed(() => {
-  const defaultPeriods = ["1d", "1w", "1m", "1y", "all", "custom"]
+  const defaultPeriods = ["1d", "1w", "1m", "1y", "custom"]
 
   if (!!selectedRange.value?.start && !!selectedRange.value?.end) {
     if (selectedRange.value.start.year === selectedRange.value.end.year) {
@@ -50,16 +66,16 @@ const selectedRange = ref<DateRange | null>(null)
 
 const pricesToShow = computed(() => {
   if (
-    !prices.value ||
-    !Array.isArray(prices.value) ||
-    prices.value.length === 0
+    !bitcoinPrices.value ||
+    !Array.isArray(bitcoinPrices.value) ||
+    bitcoinPrices.value.length === 0
   ) {
     return []
   }
 
   const filteredPricesByRange = selectedRange.value
-    ? filterPricesBySelectedRange(prices.value, selectedRange.value)
-    : prices.value
+    ? filterPricesBySelectedRange(bitcoinPrices.value, selectedRange.value)
+    : bitcoinPrices.value
 
   const filteredPricesByPeriod = filterPricesBySelectedPeriod(
     filteredPricesByRange,
@@ -74,7 +90,7 @@ const firstDate = ref<CalendarDate | null>(null)
 const lastDate = ref<CalendarDate | null>(null)
 
 watch(
-  () => prices.value,
+  () => bitcoinPrices.value,
   (newValue) => {
     if (newValue && Array.isArray(newValue) && newValue.length > 0) {
       firstDate.value = getFirstAndLastCalendarDateFromPrices(newValue, "first")
@@ -104,12 +120,17 @@ const options = computed(() => {
     chart: {
       type: "line",
       height: 400,
+      events: {
+        load() {
+          chartRef.value = this // Save the chart instance
+        },
+      },
     },
     title: {
       text: "Bitcoin Price History",
     },
     subtitle: {
-      text: `Days Count: ${l.size(prices.value)}`,
+      text: `Days Count: ${l.size(bitcoinPrices.value)}`,
     },
     xAxis: {
       type: "datetime",
@@ -146,51 +167,63 @@ const options = computed(() => {
 </script>
 
 <template>
-  <div v-if="!pending" class="flex flex-col gap-4">
-    <div class="flex flex-row gap-4 items-center">
-      <PeriodPicker
-        v-model:selected-period="selectedPeriod"
-        v-model:periods="periods"
-      />
-      <UInputNumber
-        v-if="selectedPeriod === 'custom'"
-        v-model="periodInDays"
-        :min="1"
-        :max="maxPeriodInDays ?? undefined"
-        :placeholder="`days ${
-          maxPeriodInDays ? `(max: ${maxPeriodInDays})` : ''
-        }`"
-        color="neutral"
-        variant="subtle"
-        orientation="vertical"
-      />
+  <div class="flex flex-col flex-1 gap-2">
+    <div
+      v-if="status === 'success'"
+      class="flex-1 flex flex-col gap-4 items-center"
+    >
+      <div class="flex flex-row gap-4 items-center">
+        <PeriodPicker
+          v-model:selected-period="selectedPeriod"
+          v-model:periods="periods"
+        >
+          <template #input>
+            <UInputNumber
+              v-if="selectedPeriod === 'custom'"
+              v-model="periodInDays"
+              :min="1"
+              :max="maxPeriodInDays ?? undefined"
+              :placeholder="`days ${
+                maxPeriodInDays ? `(max: ${maxPeriodInDays})` : ''
+              }`"
+              color="neutral"
+              variant="ghost"
+              orientation="vertical"
+            />
+          </template>
+        </PeriodPicker>
+        <!-- <UInputNumber
+
+        /> -->
+      </div>
+
+      <div class="flex flex-row gap-4 justify-between">
+        <DateRangePicker
+          v-if="selectedRange && firstDate && lastDate"
+          v-model:selected-range="selectedRange"
+          :first-date="firstDate.copy()"
+          :last-date="lastDate.copy()"
+        />
+      </div>
+
+      <div class="w-full">
+        <highchart :options="options" />
+      </div>
     </div>
 
-    <div class="flex-1">
-      <highchart :options="options" />
+    <div v-if="status === 'pending'" class="flex flex-col items-center gap-2">
+      <div class="text-sm text-gray-500">Loading Bitcoin prices...</div>
+      <div class="flex flex-col items-center gap-2">
+        <USkeleton class="h-4 w-[200px]" />
+        <USkeleton class="h-20 w-[250px]" />
+        <USkeleton class="h-4 w-[200px]" />
+      </div>
     </div>
-    <div class="flex flex-row gap-4">
-      <DateRangePicker
-        v-if="selectedRange && firstDate && lastDate"
-        v-model:selected-range="selectedRange"
-        :first-date="firstDate.copy()"
-        :last-date="lastDate.copy()"
-      />
-    </div>
-  </div>
 
-  <div v-if="pending" class="flex flex-col items-center gap-2">
-    <div class="text-sm text-gray-500">Loading Bitcoin prices...</div>
-    <div class="flex flex-col items-center gap-2">
-      <USkeleton class="h-4 w-[200px]" />
-      <USkeleton class="h-20 w-[250px]" />
-      <USkeleton class="h-4 w-[200px]" />
+    <div v-if="status === 'error'" class="p-5">
+      <div class="text-red-500">
+        Error loading Bitcoin divrices. Please try again later.
+      </div>
     </div>
-  </div>
-
-  <div v-if="error">
-    <p class="text-red-500">
-      Error loading Bitcoin prices. Please try again later.
-    </p>
   </div>
 </template>
