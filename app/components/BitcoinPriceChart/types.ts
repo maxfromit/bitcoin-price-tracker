@@ -6,4 +6,6 @@ export type DateRange = {
   end: CalendarDate | null
 }
 
-export type Period = "1d" | "1w" | "1m" | "1y" | "all" | "custom"
+export const predefinedPeriods = ["1d", "1w", "1m", "1y", "all"] as const
+
+export type PredefinedPeriod = (typeof predefinedPeriods)[number]
