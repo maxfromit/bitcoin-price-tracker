@@ -11,5 +11,5 @@ export const getLabelByPeriod = (
     return `{value: %Y}`
   }
 
-  return `${isTheSameYear ? `{value:%d %B}` : `{value:%d %B %Y}`}` // e.g., 20 Jun or 20 Jun 2025
+  return `${isTheSameYear ? `{value:%d %B}` : `{value:%B %Y}`}` // e.g., 20 Jun or 20 Jun 2025
 }
