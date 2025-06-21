@@ -68,12 +68,22 @@ const isNotDefaultRange = computed(() => {
     selectedRange.value.end?.compare(props.lastDate?.copy()) !== 0
   )
 })
+
+const isChangedDefinedRange = computed(() =>
+  selectedRange.value &&
+  selectedRange.value.start &&
+  selectedRange.value.end &&
+  (selectedRange.value.start?.compare(props.firstDate?.copy()) !== 0 ||
+    selectedRange.value.end?.compare(props.lastDate?.copy()) !== 0)
+    ? true
+    : false
+)
 </script>
 
 <template>
   <template v-if="selectedRange">
     <UPopover>
-      <UButton color="neutral" variant="subtle" icon="i-lucide-calendar">
+      <UButton color="neutral" variant="subtle">
         {{
           selectedRange.start
             ? df.format(selectedRange.start.toDate(getLocalTimeZone()))
@@ -84,15 +94,15 @@ const isNotDefaultRange = computed(() => {
       <template #content>
         <UCalendar
           v-model="selectedRange.start"
-          class="p-2"
           :min-value="minDate"
           :max-value="maxDate"
+          class="p-2 calendar-dates"
         />
       </template>
     </UPopover>
 
     <UPopover>
-      <UButton color="neutral" variant="subtle" icon="i-lucide-calendar">
+      <UButton color="neutral" variant="subtle">
         {{
           selectedRange.end
             ? df.format(selectedRange.end.toDate(getLocalTimeZone()))
@@ -105,22 +115,28 @@ const isNotDefaultRange = computed(() => {
           v-model="selectedRange.end"
           :min-value="minDate"
           :max-value="maxDate"
-          class="p-2"
+          class="p-2 calendar-dates"
         />
       </template>
     </UPopover>
-
-    <UButton
-      v-if="
-        selectedRange &&
-        selectedRange.start &&
-        selectedRange.end &&
-        isNotDefaultRange
+    <UTooltip
+      :text="
+        isChangedDefinedRange ? 'Reset to default range' : 'No changes to reset'
       "
-      icon="i-lucide-x"
-      color="primary"
-      variant="solid"
-      @click="resetSelectedRange()"
-    />
+    >
+      <UButton
+        icon="i-lucide-refresh-ccw"
+        variant="ghost"
+        :color="isChangedDefinedRange ? 'primary' : 'neutral'"
+        :disabled="!isChangedDefinedRange"
+        @click="resetSelectedRange()"
+      />
+    </UTooltip>
   </template>
 </template>
+
+<style scoped lang="scss">
+.calendar-dates :deep(.m-0\.5.relative:not([data-disabled])) {
+  cursor: pointer;
+}
+</style>
