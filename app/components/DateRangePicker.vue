@@ -1,23 +1,12 @@
 <script setup lang="ts">
-import type { DateValue } from "@internationalized/date"
-
-import {
-  CalendarDate,
-  DateFormatter,
-  getLocalTimeZone,
-  fromAbsolute,
-  toCalendarDate,
-} from "@internationalized/date"
+import type { CalendarDate } from "@internationalized/date"
+import type { DateRange } from "./BitcoinPriceChart/types"
+import { DateFormatter, getLocalTimeZone } from "@internationalized/date"
 
 const props = defineProps<{
-  firstDate: DateValue
-  lastDate: DateValue
+  firstDate: CalendarDate
+  lastDate: CalendarDate
 }>()
-
-type DateRange = {
-  start: DateValue | null
-  end: DateValue | null
-}
 
 const selectedRange = defineModel<DateRange>("selectedRange")
 
