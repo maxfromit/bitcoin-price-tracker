@@ -1,14 +1,14 @@
-import type { Period } from "~/components/BitcoinPriceChart/types"
+import type { PredefinedPeriod } from "~/components/BitcoinPriceChart/types"
 
 export const getLabelByPeriod = (
-  selectedPeriod: Period,
+  selectedPeriod: PredefinedPeriod,
   isTheSameYear: boolean
 ) => {
   if (selectedPeriod === "1m") {
-    return `${isTheSameYear ? `{value:%B}` : `{value:%B %Y}`}`
+    return "{value:%d %B}"
   }
   if (selectedPeriod === "1y") {
-    return `{value: %Y}`
+    return "{value: %d %B }"
   }
 
   return `${isTheSameYear ? `{value:%d %B}` : `{value:%B %Y}`}` // e.g., 20 Jun or 20 Jun 2025
