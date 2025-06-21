@@ -4,18 +4,31 @@ import type {
 } from "~~/server/types"
 
 const baseUrl = "https://data-api.coindesk.com/index/cc/v1/historical/days"
-const params = {
-  market: "cadli",
-  instrument: "BTC-USD",
-  limit: "30",
-  aggregate: "1",
-  fill: "true",
-  apply_mapping: "true",
-  response_format: "JSON",
-}
+// const params = {
+//   market: "cadli",
+//   instrument: "BTC-USD",
+//   limit: 1,
+//   aggregate: 1,
+//   fill: "true",
+//   apply_mapping: "true",
+//   response_format: "JSON",
+// }
 
-export async function fetchHistoricalPrices(): Promise<HistoricalPriceItem[]> {
+export async function fetchHistoricalPrices(
+  limit?: string
+): Promise<HistoricalPriceItem[]> {
   const url = new URL(baseUrl)
+
+  const params = {
+    market: "cadli",
+    instrument: "BTC-USD",
+    limit: limit ? limit : "2",
+    aggregate: "1",
+    fill: "true",
+    apply_mapping: "true",
+    response_format: "JSON",
+  }
+
   url.search = new URLSearchParams(params).toString()
 
   const options = {
@@ -41,7 +54,9 @@ export async function fetchHistoricalPrices(): Promise<HistoricalPriceItem[]> {
     // console.log("Response status:", response)
     const res = (await response.json()) as HistoricalPriceResponse
 
-    // console.log("data", data) // Log the fetched data
+    console.log("Count of fetched rows", res.Data.length) // Log the fetched data
+    console.log("Example of Data", res.Data) // Log the fetched data
+
     return res.Data
   } catch (error) {
     console.error("Error fetching historical prices")
