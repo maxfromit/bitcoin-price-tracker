@@ -4,10 +4,10 @@ export const getLabelByPeriod = (
   selectedPeriod: PredefinedPeriod,
   isTheSameYear: boolean
 ) => {
-  if (selectedPeriod === "1m") {
+  if (selectedPeriod === "this month") {
     return "{value:%d %B}"
   }
-  if (selectedPeriod === "1y") {
+  if (selectedPeriod === "this year") {
     return "{value: %d %B }"
   }
 
