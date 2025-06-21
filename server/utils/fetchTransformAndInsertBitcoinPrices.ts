@@ -1,53 +1,63 @@
 import { db } from "./db"
-import { gt } from "drizzle-orm"
 import { bitcoinPrice } from "../db/schema"
 import { fetchHistoricalPrices } from "./fetchHistoricalPrices"
 import { transformFetchedDataForBitcoinPrice } from "./transformFetchedDataForBitcoinPrice"
-
 export async function fetchTransformAndInsertBitcoinPrices(
-  instruction?: "insertAll"
+  instruction?: "insertAll" | "insertLatest"
 ): Promise<void> {
   try {
     console.log("Starting to fetch, transform, and insert Bitcoin prices...")
-    // Step 1: Fetch historical prices
+
     if (instruction === "insertAll") {
       console.log("deleting all historical prices as per instruction.")
       await db.delete(bitcoinPrice)
     }
 
-    const countRows = await db.$count(bitcoinPrice)
-    console.log("countRows", countRows)
+    const countExistedRows = await db.$count(bitcoinPrice)
+    console.log("countRows", countExistedRows)
 
-    const fetchedData = []
-    // const fetchedData = await fetchHistoricalPrices()
+    const fetchedData = await fetchHistoricalPrices(
+      instruction === "insertLatest" ? 5 : undefined
+    )
 
-    if (fetchedData.length === countRows && countRows > 0) {
+    if (fetchedData.length === countExistedRows && countExistedRows > 0) {
       console.log("No new data to insert. Exiting function.")
       return
     }
 
-    const latest = await db.query.bitcoinPrice.findFirst({
-      orderBy: (table, { desc }) => [desc(table.evaluatedAt)],
-    })
-    console.log("Latest evaluatedAt:", latest?.evaluatedAt)
+    let latestBitcoinPrice = null
+    if (instruction === "insertLatest") {
+      console.log("Fetching only the latest Bitcoin prices...")
+      latestBitcoinPrice = await db.query.bitcoinPrice.findFirst({
+        orderBy: (table, { desc }) => [desc(table.evaluatedAt)],
+      })
+      console.log("Latest evaluatedAt:", latestBitcoinPrice?.evaluatedAt)
+    }
 
     const dataToInsert =
-      countRows !== 0 && latest
+      countExistedRows !== 0 && latestBitcoinPrice
         ? fetchedData.filter(
             (item) =>
               typeof item.TIMESTAMP === "number" &&
-              item.TIMESTAMP > latest?.evaluatedAt
+              item.TIMESTAMP > latestBitcoinPrice?.evaluatedAt
           )
         : fetchedData
 
-    // Step 2: Transform the fetched data
-
-    // Step 3: Insert transformed data into the database
     if (dataToInsert.length > 0) {
       const transformedData = transformFetchedDataForBitcoinPrice(dataToInsert)
+
       console.log(`inserting ${transformedData.length} rows`)
-      await db.insert(bitcoinPrice).values(transformedData)
-      console.log("Data successfully inserted into bitcoin_price table.")
+      const insertedDates = await db
+        .insert(bitcoinPrice)
+        .values(transformedData)
+        .onConflictDoNothing()
+        .returning({ insertedDates: bitcoinPrice.evaluatedAt })
+      // setLoadingState(null)
+
+      console.log(
+        "Data successfully inserted into bitcoin_price table.",
+        insertedDates
+      )
     } else {
       console.log("No valid data to insert into bitcoin_price table.")
     }
