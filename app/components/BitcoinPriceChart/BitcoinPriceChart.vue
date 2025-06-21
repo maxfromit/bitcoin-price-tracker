@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import type { DateValue } from "@internationalized/date"
+import type { CalendarDate } from "@internationalized/date"
 import type { DateRange, Period } from "./types"
 import l from "lodash"
 import { startOfWeek } from "@internationalized/date"
 import { filterPricesBySelectedPeriod } from "./utils/filterPricesBySelectedPeriod"
 import { filterPricesBySelectedRange } from "./utils/filterPricesBySelectedRange"
-import { getFirstAndLastDateFromPrices } from "./utils/getFirstAndLastDateFromPrices"
+import { getFirstAndLastCalendarDateFromPrices } from "./utils/getFirstAndLastDateFromPrices"
 import { getLabelByPeriod } from "./utils/getLabelByPeriod"
 import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
 
@@ -46,7 +46,7 @@ const periods = computed(() => {
 
 const selectedPeriod = ref<Period>("1d")
 
-const selectedRange = ref<DateRange>()
+const selectedRange = ref<DateRange | null>(null)
 
 const pricesToShow = computed(() => {
   if (
@@ -70,22 +70,20 @@ const pricesToShow = computed(() => {
   return transformPriceDataForGraph(filteredPricesByPeriod)
 })
 
-const firstDate = ref<DateValue | null>(null)
-const lastDate = ref<DateValue | null>(null)
+const firstDate = ref<CalendarDate | null>(null)
+const lastDate = ref<CalendarDate | null>(null)
 
 watch(
   () => prices.value,
   (newValue) => {
     if (newValue && Array.isArray(newValue) && newValue.length > 0) {
-      firstDate.value = getFirstAndLastDateFromPrices(newValue, "first")
-      lastDate.value = getFirstAndLastDateFromPrices(newValue, "last")
+      firstDate.value = getFirstAndLastCalendarDateFromPrices(newValue, "first")
+      lastDate.value = getFirstAndLastCalendarDateFromPrices(newValue, "last")
 
       selectedRange.value = {
         start: firstDate.value,
         end: lastDate.value,
       }
-
-      console.log("Selected date range:", selectedRange.value)
     }
   },
   { immediate: true }
@@ -110,7 +108,9 @@ const options = computed(() => {
     title: {
       text: "Bitcoin Price History",
     },
-
+    subtitle: {
+      text: `Days Count: ${l.size(prices.value)}`,
+    },
     xAxis: {
       type: "datetime",
       title: { text: "Date" },
@@ -146,7 +146,7 @@ const options = computed(() => {
 </script>
 
 <template>
-  <div v-if="!pending" class="flex flex-col gap-4 w-full">
+  <div v-if="!pending" class="flex flex-col gap-4">
     <div class="flex flex-row gap-4 items-center">
       <PeriodPicker
         v-model:selected-period="selectedPeriod"
@@ -179,8 +179,18 @@ const options = computed(() => {
     </div>
   </div>
 
-  <div v-else>
-    <p>Loading Bitcoin prices...</p>
-    <USkeleton class="h-12 w-12 rounded-full" />
+  <div v-if="pending" class="flex flex-col items-center gap-2">
+    <div class="text-sm text-gray-500">Loading Bitcoin prices...</div>
+    <div class="flex flex-col items-center gap-2">
+      <USkeleton class="h-4 w-[200px]" />
+      <USkeleton class="h-20 w-[250px]" />
+      <USkeleton class="h-4 w-[200px]" />
+    </div>
+  </div>
+
+  <div v-if="error">
+    <p class="text-red-500">
+      Error loading Bitcoin prices. Please try again later.
+    </p>
   </div>
 </template>
