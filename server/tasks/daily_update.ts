@@ -1,5 +1,4 @@
 export default defineTask({
-  // give the task a name and a description
   meta: {
     name: "daily_update",
     description: "Daily updating bitcoin prices in the database with new price",
@@ -16,6 +15,5 @@ export default defineTask({
         error: error instanceof Error ? error.message : String(error),
       }
     }
-    // provide the logic to seed the database
   },
 })
