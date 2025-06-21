@@ -53,7 +53,7 @@ export const filterPricesBySelectedPeriod = (
   if (period === "custom" && periodInDays) {
     return l.filter(prices, (price, index) => {
       return (
-        (periodInDays && index + (1 % periodInDays) === 0) ||
+        (periodInDays && (index + 1) % periodInDays === 0) ||
         isElementFirstOrLastInArray(index, l.size(prices))
       )
     })
