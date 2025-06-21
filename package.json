@@ -34,6 +34,7 @@
     "@types/lodash": "^4.17.18",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.29.0",
+    "sass-embedded": "^1.89.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
