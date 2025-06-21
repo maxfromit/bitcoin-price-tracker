@@ -1,71 +1,54 @@
 <script setup lang="ts">
-import type { Period } from "./BitcoinPriceChart/BitcoinPriceChart.vue"
-import type { RadioGroupItem, DropdownMenuItem } from "@nuxt/ui"
+import type { PredefinedPeriod } from "./BitcoinPriceChart/types"
+import { predefinedPeriods } from "./BitcoinPriceChart/types"
+import l from "lodash"
 
-const selectedPeriod = defineModel<Period>("selectedPeriod")
-const periods = defineModel<RadioGroupItem[]>("periods")
-
-const items = ref<DropdownMenuItem[]>([
-  {
-    label: "input",
-  },
-])
-const openDropdown = ref(false)
+const selectedPredefinedPeriod = defineModel<PredefinedPeriod | null>(
+  "selectedPredefinedPeriod"
+)
+const selectedCustomPeriodInDays = defineModel<number | null>(
+  "selectedCustomPeriodInDays"
+)
 
 watch(
-  () => selectedPeriod.value,
+  () => selectedCustomPeriodInDays.value,
   (newPeriod) => {
-    if (newPeriod === "custom") {
-      openDropdown.value = true
-    } else {
-      openDropdown.value = false
+    if (l.isNumber(newPeriod) && newPeriod < 1) {
+      selectedCustomPeriodInDays.value = 1
+    }
+
+    if (l.isNumber(newPeriod) && newPeriod > 0) {
+      selectedPredefinedPeriod.value = null
     }
   }
 )
 
-function handleCustomClick(period?: Period) {
-  console.log("Custom period selected:", period)
-  if (period === "custom") {
-    openDropdown.value = true
+watch(
+  () => selectedPredefinedPeriod.value,
+  (newPeriod) => {
+    if (!!selectedCustomPeriodInDays.value && !!newPeriod) {
+      selectedCustomPeriodInDays.value = null
+    }
   }
-}
+)
 </script>
 
 <template>
-  <UDropdownMenu
-    v-model:open="openDropdown"
-    :items="items"
-    :content="{
-      align: 'start',
-      side: 'bottom',
-      sideOffset: 8,
-    }"
-    :ui="{
-      content: 'w-48',
-    }"
-  >
-    <template #default>
-      <URadioGroup
-        v-if="periods && periods.length > 0"
-        v-model="selectedPeriod"
-        orientation="horizontal"
-        variant="list"
-        default-value="all"
-        :items="periods"
-        @change="handleCustomClick(selectedPeriod)"
-      >
-        <template #label="{ item }">
-          <div class="cursor-pointer" @click.stop="selectedPeriod = item.value">
-            {{ item.value }}
-          </div>
-        </template>
-      </URadioGroup>
-    </template>
+  <URadioGroup
+    v-if="predefinedPeriods && predefinedPeriods.length > 0"
+    v-model="selectedPredefinedPeriod"
+    :items="predefinedPeriods"
+    orientation="horizontal"
+    variant="list"
+    default-value="all"
+  />
 
-    <template #item>
-      <div @click.stop>
-        <slot name="input" />
-      </div>
-    </template>
-  </UDropdownMenu>
+  <UInput
+    v-model="selectedCustomPeriodInDays"
+    type="number"
+    color="neutral"
+    placeholder="Custom period in days"
+    variant="outline"
+    orientation="vertical"
+  />
 </template>
