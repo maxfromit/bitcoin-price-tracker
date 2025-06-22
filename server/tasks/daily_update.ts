@@ -4,9 +4,14 @@ export default defineTask({
     description: "Daily updating bitcoin prices in the database with new price",
   },
   async run() {
-    console.log("Running daily update for Bitcoin prices...")
+    const dataFetchLimit = 5
+    console.log(
+      "Running daily update for Bitcoin prices..., fetching last",
+      dataFetchLimit,
+      "days"
+    )
     try {
-      await fetchTransformAndInsertBitcoinPrices("insertLatest")
+      await fetchTransformAndInsertBitcoinPrices(dataFetchLimit)
       return { result: "success" }
     } catch (error) {
       console.error("Error during daily update of Bitcoin prices:", error)
