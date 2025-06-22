@@ -1,14 +1,15 @@
 import { tz } from "~/components/BitcoinPriceChart/utils/tz"
-import type { ModelRef } from "vue"
 
-import type { DateRange, PredefinedPeriod } from "../types"
-import type { CalendarDate } from "@internationalized/date"
 import {
   today,
   startOfYear,
   startOfMonth,
   startOfWeek,
 } from "@internationalized/date"
+
+import type { ModelRef } from "vue"
+import type { CalendarDate } from "@internationalized/date"
+import type { DateRange, PredefinedPeriod } from "../types"
 
 export const useUpdateDateRangeBySelectedPeriod = ({
   selectedRange,
