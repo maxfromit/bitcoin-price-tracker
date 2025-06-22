@@ -1,4 +1,4 @@
-import { tz } from "~/components/BitcoinPriceChart/utils/tz"
+import { tz } from "~/components/BitcoinPriceChart/utils"
 
 import {
   today,
@@ -40,12 +40,6 @@ export const useUpdateDateRangeBySelectedPeriod = ({
     selectedRange.value.start = startOfYear(selectedRange.value.end)
   }
 
-  if (!predefinedPeriod && customPeriodInDays) {
-    selectedRange.value.start = selectedRange.value.end.subtract({
-      days: customPeriodInDays,
-    })
-  }
-
   if (
     (predefinedPeriod === "all" ||
       (!predefinedPeriod && !customPeriodInDays)) &&
@@ -53,5 +47,12 @@ export const useUpdateDateRangeBySelectedPeriod = ({
   ) {
     selectedRange.value.start = firstDate.copy()
   }
+
+  if (!predefinedPeriod && customPeriodInDays) {
+    selectedRange.value.start = selectedRange.value.end.subtract({
+      days: customPeriodInDays,
+    })
+  }
+
   return
 }
