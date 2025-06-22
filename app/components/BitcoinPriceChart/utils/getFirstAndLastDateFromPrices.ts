@@ -1,5 +1,6 @@
 import { getCalendarDateFromUnixTimestamp } from "~/components/BitcoinPriceChart/utils/getCalendarDateFromUnixTimestamp"
 import { tz } from "~/components/BitcoinPriceChart/utils/tz"
+
 import type { BitcoinPrice } from "~~/server/db/schema"
 
 export const getFirstAndLastCalendarDateFromPrices = (
