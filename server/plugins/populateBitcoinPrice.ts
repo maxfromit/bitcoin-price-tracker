@@ -1,4 +1,4 @@
-import { fetchTransformAndInsertBitcoinPrices } from "../utils/fetchTransformAndInsertBitcoinPrices"
+import { fetchTransformAndInsertBitcoinPrices } from "~~/server/utils"
 
 export default defineNitroPlugin(async () => {
   try {

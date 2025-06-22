@@ -1,3 +1,5 @@
+import { fetchTransformAndInsertBitcoinPrices } from "~~/server/utils"
+
 export default defineTask({
   meta: {
     name: "dailyUpdate",

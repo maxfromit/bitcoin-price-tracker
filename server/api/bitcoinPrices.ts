@@ -1,4 +1,4 @@
-import { db } from "~~/server/utils/db"
+import { db } from "~~/server/utils"
 import { bitcoinPriceTable } from "~~/server/db/schema"
 
 export default defineEventHandler(async () => {
