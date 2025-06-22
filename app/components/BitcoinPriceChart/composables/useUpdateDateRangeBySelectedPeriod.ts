@@ -17,8 +17,8 @@ export const useUpdateDateRangeBySelectedPeriod = ({
   firstDate,
 }: {
   selectedRange: ModelRef<DateRange>
-  predefinedPeriod: PredefinedPeriod
-  customPeriodInDays?: number | null
+  predefinedPeriod: PredefinedPeriod | null
+  customPeriodInDays: number | null
   firstDate: CalendarDate | undefined
 }) => {
   selectedRange.value.end = today(tz)
