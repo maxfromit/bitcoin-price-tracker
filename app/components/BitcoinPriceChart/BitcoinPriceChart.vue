@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import type { CalendarDate } from "@internationalized/date"
-import type { DateRange, PredefinedPeriod } from "./types"
-import type { Chart } from "highcharts"
 import l from "lodash"
+
 import { useUpdateDateRangeBySelectedPeriod } from "./composables/useUpdateDateRangeBySelectedPeriod"
 import { filterPricesBySelectedRange } from "./utils/filterPricesBySelectedRange"
 import { getFirstAndLastCalendarDateFromPrices } from "./utils/getFirstAndLastDateFromPrices"
-import { getLabelByPeriod } from "./utils/getLabelByPeriod"
 import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
+
+import type { Chart } from "highcharts"
+import type { DateRange, PredefinedPeriod } from "./types"
 
 const { data: bitcoinPrices, status } = await useFetch("/api/bitcoin-prices")
 
@@ -26,21 +26,18 @@ watchEffect(() => {
 const selectedCustomPeriodInDays = ref<number | null>(null)
 const selectedPredefinedPeriod = ref<PredefinedPeriod>("all")
 const selectedRange = ref<DateRange | null>(null)
-
-const firstDate = ref<CalendarDate | null>(null)
-const lastDate = ref<CalendarDate | null>(null)
+const defaultRange = ref<DateRange | null>(null)
 
 watch(
   () => bitcoinPrices.value,
   (newValue) => {
     if (newValue && Array.isArray(newValue) && newValue.length > 0) {
-      firstDate.value = getFirstAndLastCalendarDateFromPrices(newValue, "first")
-      lastDate.value = getFirstAndLastCalendarDateFromPrices(newValue, "last")
-
-      selectedRange.value = {
-        start: firstDate.value,
-        end: lastDate.value,
+      defaultRange.value = {
+        start: getFirstAndLastCalendarDateFromPrices(newValue, "first"),
+        end: getFirstAndLastCalendarDateFromPrices(newValue, "last"),
       }
+
+      selectedRange.value = l.cloneDeep(defaultRange.value)
     }
   },
   { immediate: true }
@@ -62,24 +59,28 @@ const pricesToShow = computed(() => {
   return transformPriceDataForGraph(filteredPricesByRange)
 })
 
-watchEffect(() => {
-  useUpdateDateRangeBySelectedPeriod({
-    selectedRange,
-    predefinedPeriod: selectedPredefinedPeriod.value,
-    customPeriodInDays: selectedCustomPeriodInDays.value,
-    firstDate: firstDate.value?.copy(),
-  })
-})
+watch(
+  () => [selectedPredefinedPeriod.value, selectedCustomPeriodInDays.value],
+  () => {
+    if (selectedRange.value)
+      useUpdateDateRangeBySelectedPeriod({
+        selectedRange,
+        predefinedPeriod: selectedPredefinedPeriod.value,
+        customPeriodInDays: selectedCustomPeriodInDays.value,
+        firstDate: defaultRange.value?.start?.copy(),
+      })
+  }
+)
 
-const isTheSameYear = computed(() => {
-  if (!firstDate.value || !lastDate.value) {
-    return false
-  }
-  if (selectedRange.value?.start && selectedRange.value?.end) {
-    return selectedRange.value?.start?.year === selectedRange.value?.end?.year
-  }
-  return firstDate.value?.year === lastDate.value?.year
-})
+const getLabelWithoutYearIfOneYear = () => {
+  return `${
+    selectedRange.value?.start &&
+    selectedRange.value?.end &&
+    selectedRange.value?.start?.year === selectedRange.value?.end?.year
+      ? `{value:%d %B}`
+      : `{value: %d %B %Y}`
+  }`
+}
 
 const options = computed(() => {
   return {
@@ -100,12 +101,9 @@ const options = computed(() => {
     },
     xAxis: {
       type: "datetime",
-      title: { text: "Date" },
+      // title: { text: "Date" },
       labels: {
-        format: getLabelByPeriod(
-          selectedPredefinedPeriod.value,
-          isTheSameYear.value
-        ),
+        format: getLabelWithoutYearIfOneYear(),
       },
     },
     yAxis: {
@@ -150,10 +148,9 @@ const options = computed(() => {
 
       <div class="flex flex-row gap-4 justify-between">
         <DateRangePicker
-          v-if="selectedRange && firstDate && lastDate"
+          v-if="selectedRange && defaultRange"
           v-model:selected-range="selectedRange"
-          :first-date="firstDate.copy()"
-          :last-date="lastDate.copy()"
+          :default-range="defaultRange"
         />
       </div>
 
