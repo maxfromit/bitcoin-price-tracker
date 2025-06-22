@@ -47,17 +47,27 @@ export async function fetchTransformAndInsertBitcoinPrices(
       const transformedData = transformFetchedDataForBitcoinPrice(dataToInsert)
 
       console.log(`inserting ${transformedData.length} rows`)
-      const insertedDates = await db
+
+      await db
         .insert(bitcoinPrice)
         .values(transformedData)
         .onConflictDoNothing()
-        .returning({ insertedDates: bitcoinPrice.evaluatedAt })
+
+      console.log("Data successfully inserted into bitcoin_price table.")
+
+      // .returning({ insertedDates: bitcoinPrice.evaluatedAt })
+
+      // const insertedDates = await db
+      //   .insert(bitcoinPrice)
+      //   .values(transformedData)
+      //   .onConflictDoNothing()
+      //   .returning({ insertedDates: bitcoinPrice.evaluatedAt })
       // setLoadingState(null)
 
-      console.log(
-        "Data successfully inserted into bitcoin_price table.",
-        insertedDates
-      )
+      // console.log(
+      //   "Data successfully inserted into bitcoin_price table.",
+      //   insertedDates
+      // )
     } else {
       console.log("No valid data to insert into bitcoin_price table.")
     }
