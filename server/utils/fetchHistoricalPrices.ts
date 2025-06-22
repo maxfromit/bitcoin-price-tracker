@@ -61,6 +61,7 @@ export async function fetchHistoricalPrices(dataFetchLimit?: number) {
       }
 
       allData.push(...batch)
+
       keepFetching =
         batch.length >= parseInt(params.limit, 10) &&
         ((dataFetchLimit && allData.length < dataFetchLimit) || !dataFetchLimit)
