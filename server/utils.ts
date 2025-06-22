@@ -120,7 +120,7 @@ async function fetchTransformAndInsertBitcoinPrices(
     console.log("Starting to fetch, transform, and insert Bitcoin prices...")
 
     const countExistedRows = await db.$count(bitcoinPriceTable)
-    console.log("countRows", countExistedRows)
+    console.log("Count existed rows", countExistedRows)
 
     const fetchedData = await fetchHistoricalPrices(
       dataFetchLimit ? dataFetchLimit : undefined
