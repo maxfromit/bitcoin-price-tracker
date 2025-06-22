@@ -10,7 +10,7 @@ import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
 import type { Chart } from "highcharts"
 import type { DateRange, PredefinedPeriod } from "./types"
 
-const { data: bitcoinPrices, status } = await useFetch("/api/bitcoin-prices")
+const { data: bitcoinPrices, status } = await useFetch("/api/bitcoinPrices")
 
 const chartRef = ref<Chart | null>(null)
 
