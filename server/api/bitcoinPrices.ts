@@ -1,10 +1,10 @@
 import { db } from "~~/server/utils/db"
-import { bitcoinPrice } from "~~/server/db/schema"
+import { bitcoinPriceTable } from "~~/server/db/schema"
 
 export default defineEventHandler(async () => {
   const bitcoinPrices = await db
     .select()
-    .from(bitcoinPrice)
-    .orderBy(bitcoinPrice.evaluatedAt)
+    .from(bitcoinPriceTable)
+    .orderBy(bitcoinPriceTable.evaluatedAt)
   return bitcoinPrices
 })

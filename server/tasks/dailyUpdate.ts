@@ -1,6 +1,6 @@
 export default defineTask({
   meta: {
-    name: "daily_update",
+    name: "dailyUpdate",
     description: "Daily updating bitcoin prices in the database with new price",
   },
   async run() {
