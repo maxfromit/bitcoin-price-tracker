@@ -4,7 +4,7 @@ import l from "lodash"
 
 import { useUpdateDateRangeBySelectedPeriod } from "./composables/useUpdateDateRangeBySelectedPeriod"
 import { filterPricesBySelectedRange } from "./utils/filterPricesBySelectedRange"
-import { getFirstAndLastCalendarDateFromPrices } from "./utils/getFirstAndLastDateFromPrices"
+import { getFirstAndLastCalendarDateFromBitcoinPrices } from "./utils/getFirstAndLastCalendarDateFromBitcoinPrices"
 import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
 
 import type { Chart } from "highcharts"
@@ -33,8 +33,8 @@ watch(
   (newValue) => {
     if (newValue && Array.isArray(newValue) && newValue.length > 0) {
       defaultRange.value = {
-        start: getFirstAndLastCalendarDateFromPrices(newValue, "first"),
-        end: getFirstAndLastCalendarDateFromPrices(newValue, "last"),
+        start: getFirstAndLastCalendarDateFromBitcoinPrices(newValue, "first"),
+        end: getFirstAndLastCalendarDateFromBitcoinPrices(newValue, "last"),
       }
 
       selectedRange.value = l.cloneDeep(defaultRange.value)
