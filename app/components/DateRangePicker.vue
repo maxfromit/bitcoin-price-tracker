@@ -1,25 +1,16 @@
 <script setup lang="ts">
-import type { CalendarDate } from "@internationalized/date"
-import type { DateRange } from "./BitcoinPriceChart/types"
+import l from "lodash"
 import { DateFormatter, getLocalTimeZone } from "@internationalized/date"
+import type { DateRange } from "./BitcoinPriceChart/types"
 
 const props = defineProps<{
-  firstDate: CalendarDate
-  lastDate: CalendarDate
+  defaultRange: DateRange
 }>()
 
 const selectedRange = defineModel<DateRange>("selectedRange")
 
 const df = new DateFormatter("en-US", {
   dateStyle: "medium",
-})
-
-const maxDate = computed(() => {
-  return props.lastDate?.copy() ?? undefined
-})
-
-const minDate = computed(() => {
-  return props.firstDate?.copy() ?? undefined
 })
 
 // Keep selectedRange.start <= selectedRange.end by updating the other value if needed and vice versa
@@ -50,25 +41,21 @@ watch(
 )
 
 function resetSelectedRange() {
-  selectedRange.value = {
-    start: props.firstDate?.copy(),
-    end: props.lastDate?.copy(),
-  }
+  selectedRange.value = l.cloneDeep(props.defaultRange)
 }
 
 const isChangedRange = computed(() =>
   selectedRange.value &&
   selectedRange.value.start &&
   selectedRange.value.end &&
-  (selectedRange.value.start?.compare(props.firstDate?.copy()) !== 0 ||
-    selectedRange.value.end?.compare(props.lastDate?.copy()) !== 0)
+  !l.isEqual(selectedRange.value, props.defaultRange)
     ? true
     : false
 )
 </script>
 
 <template>
-  <template v-if="selectedRange">
+  <template v-if="selectedRange && defaultRange">
     <UPopover>
       <UButton color="neutral" variant="subtle">
         {{
@@ -81,8 +68,8 @@ const isChangedRange = computed(() =>
       <template #content>
         <UCalendar
           v-model="selectedRange.start"
-          :min-value="minDate"
-          :max-value="maxDate"
+          :min-value="defaultRange.start?.copy()"
+          :max-value="defaultRange.end?.copy()"
           class="p-2 calendar-dates"
         />
       </template>
@@ -100,14 +87,14 @@ const isChangedRange = computed(() =>
       <template #content>
         <UCalendar
           v-model="selectedRange.end"
-          :min-value="minDate"
-          :max-value="maxDate"
+          :min-value="defaultRange.start?.copy()"
+          :max-value="defaultRange.end?.copy()"
           class="p-2 calendar-dates"
         />
       </template>
     </UPopover>
     <UTooltip
-      :text="isChangedRange ? 'Reset to default range' : 'No changes to reset'"
+      :text="isChangedRange ? 'Reset to full range' : 'No changes to reset'"
     >
       <UButton
         icon="i-lucide-refresh-ccw"
