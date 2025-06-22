@@ -1,75 +1,89 @@
-# Nuxt UI Starter
+# Bitcoin Price Tracker
 
-Look at [Nuxt docs](https://nuxt.com/docs/getting-started/introduction) and [Nuxt UI docs](https://ui.nuxt.com) to learn more.
+A full-stack Nuxt 3 application for tracking and visualizing historical Bitcoin prices with automated daily updates.
+Data is fetched from Coindesk API
 
-## Setup
+---
 
-Make sure to install the dependencies:
+## 🚀 Quick Start
 
-```bash
-# npm
-npm install
+1. **Clone the repository**
 
-# pnpm
-pnpm install
+2. **Copy environment variables**
 
-# yarn
-yarn install
+   ```
+   cp .env.example .env
+   ```
 
-# bun
-bun install
-```
+3. **Start the project with Docker Compose**
 
-## Development Server
+   ```
+   docker-compose up --build
+   ```
 
-Start the development server on `http://localhost:3000`:
+   > The build usually takes less than a minute.
 
-```bash
-# npm
-npm run dev
+4. **Open in your browser**
+   ```
+   http://localhost:3000/
+   ```
 
-# pnpm
-pnpm run dev
+---
 
-# yarn
-yarn dev
+## 🗄️ Backend
 
-# bun
-bun run dev
-```
+- **Database:** PostgreSQL
+- **ORM:** Drizzle
+- **Location:** `/server`
 
-## Production
+### How it works
 
-Build the application for production:
+1. **Initial Data Fetch**
 
-```bash
-# npm
-npm run build
+   - On server startup, the plugin `populateBitcoinPrice.ts` fetches historical Bitcoin prices from the Coindesk API and populates the database.
+   - This uses the `fetchTransformAndInsertBitcoinPrices` function (without arguments).
 
-# pnpm
-pnpm run build
+2. **Daily Updates**
+   - A scheduled task (`dailyUpdate.ts`) runs every day at **23:59 UTC**.
+   - It fetches and inserts only the latest 5 days of data (`fetchTransformAndInsertBitcoinPrices(5)`).
+   - Duplicate entries are ignored at the database level (upsert logic), so no extra date checks are needed.
 
-# yarn
-yarn build
+---
 
-# bun
-bun run build
-```
+## 🖥️ Frontend
 
-Locally preview production build:
+- **Framework:** Nuxt 3
+- **UI:** Nuxt UI (for inputs, popovers, etc.)
+- **Charts:** Highcharts
+- **Location:** `/app`
 
-```bash
-# npm
-npm run preview
+### Features
 
-# pnpm
-pnpm run preview
+- **Period Selection:**  
+  Users can select a predefined period (day, week, month, year) or set a custom period (in days) up to today.
+- **Date Range Picker:**
+  - Only available dates are clickable (`cursor-pointer` only on valid dates).
+  - Out-of-range dates are disabled in the calendar.
+  - If the start date is set after the end date, the end date is automatically adjusted.
+- **Chart Display:**
+  - Shows one price per day.
+  - Year is hidden on the x-axis if the selected period is a year or less.
+- **Responsive Design:**
+  - The layout is adaptive and works well on mobile devices.
 
-# yarn
-yarn preview
+---
 
-# bun
-bun run preview
-```
+## 🛠️ Tech Stack
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- Nuxt 3
+- PostgreSQL
+- Drizzle ORM
+- Highcharts
+- Nuxt UI
+- Docker & Docker Compose
+
+---
+
+## License
+
+MIT
