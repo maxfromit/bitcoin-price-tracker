@@ -1,5 +1,5 @@
 import { db } from "./db"
-import { bitcoinPrice } from "../db/schema"
+import { bitcoinPriceTable } from "../db/schema"
 import { fetchHistoricalPrices } from "./fetchHistoricalPrices"
 import { transformFetchedDataForBitcoinPrice } from "./transformFetchedDataForBitcoinPrice"
 
@@ -9,7 +9,7 @@ export async function fetchTransformAndInsertBitcoinPrices(
   try {
     console.log("Starting to fetch, transform, and insert Bitcoin prices...")
 
-    const countExistedRows = await db.$count(bitcoinPrice)
+    const countExistedRows = await db.$count(bitcoinPriceTable)
     console.log("countRows", countExistedRows)
 
     const fetchedData = await fetchHistoricalPrices(
@@ -27,7 +27,7 @@ export async function fetchTransformAndInsertBitcoinPrices(
       console.log(`inserting ${transformedData.length} rows`)
 
       await db
-        .insert(bitcoinPrice)
+        .insert(bitcoinPriceTable)
         .values(transformedData)
         .onConflictDoNothing()
 
