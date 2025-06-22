@@ -3,9 +3,11 @@ import { ref } from "vue"
 import l from "lodash"
 
 import { useUpdateDateRangeBySelectedPeriod } from "./composables/useUpdateDateRangeBySelectedPeriod"
-import { filterPricesBySelectedRange } from "./utils/filterPricesBySelectedRange"
-import { getFirstAndLastCalendarDateFromBitcoinPrices } from "./utils/getFirstAndLastCalendarDateFromBitcoinPrices"
-import { transformPriceDataForGraph } from "./utils/transformPriceDataForGraph"
+import {
+  filterPricesBySelectedRange,
+  transformPriceDataForGraph,
+  getFirstAndLastCalendarDateFromBitcoinPrices,
+} from "./utils"
 
 import type { Chart } from "highcharts"
 import type { DateRange, PredefinedPeriod } from "./types"
