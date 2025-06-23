@@ -9,21 +9,9 @@ import {
   getFirstAndLastCalendarDateFromBitcoinPrices,
 } from "./utils"
 
-import type { Chart } from "highcharts"
 import type { DateRange, PredefinedPeriod } from "./types"
 
 const { data: bitcoinPrices, status } = await useFetch("/api/bitcoinPrices")
-
-const chartRef = ref<Chart | null>(null)
-
-watchEffect(() => {
-  if (status.value !== "success" && chartRef.value) {
-    chartRef.value.showLoading()
-  }
-  if (status.value === "success" && chartRef.value) {
-    chartRef.value.hideLoading()
-  }
-})
 
 const selectedCustomPeriodInDays = ref<number | null>(null)
 const selectedPredefinedPeriod = ref<PredefinedPeriod>("all")
@@ -89,11 +77,6 @@ const options = computed(() => {
     chart: {
       type: "line",
       height: 400,
-      events: {
-        load() {
-          chartRef.value = this // Save the chart instance
-        },
-      },
     },
     title: {
       text: "Bitcoin Price History",
@@ -136,44 +119,44 @@ const options = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 gap-2">
-    <div
-      v-if="status === 'success'"
-      class="flex-1 flex flex-col gap-6 md:gap-4 items-center"
+  <div
+    v-if="status === 'success'"
+    class="flex-1 flex flex-col gap-6 md:gap-4 items-center"
+  >
+    <div class="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+      <PeriodPicker
+        v-model:selected-predefined-period="selectedPredefinedPeriod"
+        v-model:selected-custom-period-in-days="selectedCustomPeriodInDays"
+      />
+    </div>
+
+    <div class="flex flex-row gap-4 justify-between">
+      <DateRangePicker
+        v-if="selectedRange && defaultRange"
+        v-model:selected-range="selectedRange"
+        :default-range="defaultRange"
+      />
+    </div>
+
+    <div class="w-full">
+      <highchart :options="options" />
+    </div>
+  </div>
+
+  <div
+    v-if="status === 'pending'"
+    class="flex-1 flex flex-col items-center gap-4"
+  >
+    <USkeleton class="flex flex-col h-6 w-4/6 items-center justify-center">
+      <div class="text-sm text-gray-400">loading...</div></USkeleton
     >
-      <div class="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
-        <PeriodPicker
-          v-model:selected-predefined-period="selectedPredefinedPeriod"
-          v-model:selected-custom-period-in-days="selectedCustomPeriodInDays"
-        />
-      </div>
+    <USkeleton class="h-8 w-2/6" />
+    <USkeleton class="h-40 w-5/6 max-h-1/2" />
+  </div>
 
-      <div class="flex flex-row gap-4 justify-between">
-        <DateRangePicker
-          v-if="selectedRange && defaultRange"
-          v-model:selected-range="selectedRange"
-          :default-range="defaultRange"
-        />
-      </div>
-
-      <div class="w-full">
-        <highchart :options="options" />
-      </div>
-    </div>
-
-    <div v-if="status === 'pending'" class="flex flex-col items-center gap-2">
-      <div class="text-sm text-gray-500">Loading Bitcoin prices...</div>
-      <div class="flex flex-col items-center gap-2">
-        <USkeleton class="h-4 w-[200px]" />
-        <USkeleton class="h-20 w-[250px]" />
-        <USkeleton class="h-4 w-[200px]" />
-      </div>
-    </div>
-
-    <div v-if="status === 'error'" class="p-5">
-      <div class="text-red-500">
-        Error loading Bitcoin divrices. Please try again later.
-      </div>
+  <div v-if="status === 'error'" class="flex-1 flex flex-col">
+    <div class="text-red-500">
+      Error loading bitcoin prices. Please try again later.
     </div>
   </div>
 </template>
